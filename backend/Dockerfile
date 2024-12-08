@@ -1,7 +1,18 @@
-FROM node:14
+# Base image
+FROM python:3.9-slim
+
+# Working directory
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
+
+# Copy requirements and install
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
 COPY . .
-EXPOSE 3000
-CMD ["node", "index.js"]
+
+# Expose the app port
+EXPOSE 5000
+
+# Command to run the app
+CMD ["python", "app.py"]
