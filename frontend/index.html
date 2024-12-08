@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator { /* Aplicar un fondo claro, un padding, un borde redondeado y una sombra a la calculadora */
+            width: 250px;
+            background-color: #f3f3f3;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .display { /*Estiliza el campo de texto donde se muestra el número y operación actual */
+            width: 100%;
+            height: 50px;
+            font-size: 24px;
+            text-align: right;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid grey;
+            border-radius: 5px;
+        }
+        .buttons { /* Crea una cuadricula de 4 columnas para los botones de la calculadora */
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        button { /* Aplica las caracteristicas de los botones */
+            width: 100%;
+            height: 50px;
+            font-size: 18px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .operator { /* estilos para los operadora */
+            background-color: orange;
+            color: white;
+        }
+        .equal { /* Estilos para el boton de = */
+            grid-column: span 2;
+            background-color: green;
+            color: white;
+        }
+        .clear { /* Estilos para el boton de limbiar */
+            background-color: red;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <input type="text" id="display" class="display" readonly>
+        <div class="buttons">
+            <button onclick="appendNumber(7)">7</button>  <!-- Boton para el numero 7 -->
+            <button onclick="appendNumber(8)">8</button>  <!-- Boton para el numero 8 -->
+            <button onclick="appendNumber(9)">9</button> <!-- Boton para el numero 9 -->
+            <button onclick="setOperation('dividir')" class="operator">÷</button> <!-- Boton para la operacion de dividir-->
+
+            <button onclick="appendNumber(4)">4</button> <!-- Boton para el numero 4 -->
+            <button onclick="appendNumber(5)">5</button> <!-- Boton para el numero 5 -->
+            <button onclick="appendNumber(6)">6</button> <!-- Boton para el numero 6 -->
+            <button onclick="setOperation('multiplicar')" class="operator">×</button> <!-- Boton para la operacion multiplicar -->
+
+            <button onclick="appendNumber(1)">1</button> <!-- Boton para el numero 1 -->
+            <button onclick="appendNumber(2)">2</button> <!-- Boton para el numero 2 -->
+            <button onclick="appendNumber(3)">3</button> <!-- Boton para el numero 3 -->
+            <button onclick="setOperation('restar')" class="operator">-</button> <!-- Boton para la operacion restar-->
+
+            <button onclick="appendNumber(0)">0</button> <!-- Boton para el numero 0 -->
+            <button onclick="clearDisplay()" class="clear">C</button> <!-- Boton para la funion limpiar -->
+            <button onclick="calculate()" class="equal">=</button> <!-- Boton para la operacion cacular -->
+            <button onclick="setOperation('sumar')" class="operator">+</button> <!-- Boton para la operaciopn sumar -->
+        </div>
+    </div>
+
+    <script>
+        let currentNumber = ''; //Nuero actualmente ingresado
+        let previousNumber = ''; //Numero anterior ingresado antes de hacer la operacion
+        let operation = ''; // Operacion seleccionada
+
+        function appendNumber(number) {
+            currentNumber += number; // Agregar el numero presionado
+            updateDisplay(); //Mostrar el valor actualizado en la pantalla
+        }
+        // Funcion para seleccionar una operacion
+        function setOperation(op) {
+            if (currentNumber === '') return;
+            if (previousNumber !== '') {
+                calculate(); // Calcular la operacion previa
+            }
+            operation = op;
+            previousNumber = currentNumber;
+            currentNumber = '';
+        }
+        // Funcion para realizar el calculo
+        function calculate() {
+            if (previousNumber === '' || currentNumber === '' || !operation) return;
+
+            fetch(`http://localhost:5000/${operation}?a=${previousNumber}&b=${currentNumber}`)
+                .then(response => response.json())
+                .then(data => {
+                    currentNumber = data.result || data.error;
+                    operation = '';
+                    previousNumber = '';
+                    updateDisplay();
+                })
+                .catch(error => {
+                    currentNumber = 'Error';
+                    updateDisplay();
+                    console.error(error);
+                });
+        }
+        //FUncion para actualizar la pantalla de la calculadora
+        function updateDisplay() {
+            document.getElementById('display').value = currentNumber;
+        }
+        //Funcion para limpiar todos los valores de la calculadora
+        function clearDisplay() {
+            currentNumber = '';
+            previousNumber = '';
+            operation = '';
+            updateDisplay();
+        }
+    </script>
+</body>
+</html>
